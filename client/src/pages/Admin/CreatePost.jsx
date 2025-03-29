@@ -16,6 +16,7 @@ const CreatePost = () => {
   const [guest, setGuest] = useState("1");
   const [isAvailable, setIsAvailable] = useState(false);
   const [price, setPrice] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Fetch categories from API
   const fetchCategories = async () => {
@@ -26,6 +27,7 @@ const CreatePost = () => {
       setCategory(response.data.category);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      toast.error("Failed to fetch categories.");
     }
   };
 
@@ -79,6 +81,7 @@ const CreatePost = () => {
     });
 
     try {
+      setLoading(true); // Start loading
       await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/post/create-post`,
         formData,
@@ -103,6 +106,8 @@ const CreatePost = () => {
     } catch (error) {
       console.error("Error creating post:", error);
       toast.error("Failed to create post.");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -250,9 +255,12 @@ const CreatePost = () => {
 
           <button
             type="submit"
-            className="w-[81%] bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition duration-300"
+            className={`w-[81%] bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition duration-300 ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={loading}
           >
-            Submit Post
+            {loading ? "Submitting..." : "Submit Post"}
           </button>
         </form>
       </div>
