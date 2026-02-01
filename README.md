@@ -134,7 +134,7 @@ Use Stripe test cards:
 
 ## 📦 Deployment
 
-See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed deployment instructions.
+
 
 **Quick Deploy:**
 - Frontend: Vercel / Netlify
