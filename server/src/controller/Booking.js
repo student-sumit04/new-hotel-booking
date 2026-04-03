@@ -8,22 +8,22 @@ import User from "../models/User.js";
 export const searchBookings = async (req, res) => {
   try {
     const { keyword } = req.params;
+    const escapedKeyword = keyword.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const keywordRegex = new RegExp(escapedKeyword, "i");
 
-    // Split the keyword into individual words
-    const words = keyword.split(" ");
-
-    // Build the query to match any word in the description
+    // Match title, description, hotel location and nearby areas.
     const results = await Post.find({
       $or: [
-        { title: { $regex: keyword, $options: "i" } },
+        { title: keywordRegex },
+        { description: keywordRegex },
+        { hotelLocation: keywordRegex },
         {
-          description: {
-            $regex: words.join("|"), // Matches any of the words
-            $options: "i", // Case-insensitive
+          nearArea: {
+            $elemMatch: { $regex: escapedKeyword, $options: "i" },
           },
         },
       ],
-    }).select("title hotelLocation images description");
+    }).select("title hotelLocation images description isAvailable price guest rating slug");
 
     res.json(results);
   } catch (error) {
