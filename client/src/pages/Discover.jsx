@@ -9,7 +9,9 @@ const Discover = () => {
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCountry, setSelectedCountry] = useState("all");
   const [categories, setCategories] = useState([]);
+  const countryChips = ["India", "Australia", "New Zealand", "Japan", "China"];
 
   useEffect(() => {
     fetchDestinations();
@@ -52,25 +54,26 @@ const Discover = () => {
   };
 
   const filteredDestinations = React.useMemo(() => {
-    if (selectedCategory === "all") {
-      console.log("Showing all destinations:", destinations.length);
-      return destinations;
+    let filtered = destinations;
+
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((dest) => {
+        // Handle both populated object and string ID
+        const destCategoryId =
+          dest.category?._id?.toString() || dest.category?.toString();
+        return destCategoryId === selectedCategory;
+      });
     }
-    
-    const filtered = destinations.filter((dest) => {
-      // Handle both populated object and string ID
-      const destCategoryId = dest.category?._id?.toString() || dest.category?.toString();
-      const match = destCategoryId === selectedCategory;
-      
-      if (!match) {
-        console.log(`Hotel ${dest.title} category ${destCategoryId} doesn't match ${selectedCategory}`);
-      }
-      return match;
-    });
-    
-    console.log(`Filtered ${filtered.length} destinations for category ${selectedCategory}`);
+
+    if (selectedCountry !== "all") {
+      const selectedCountryLower = selectedCountry.toLowerCase();
+      filtered = filtered.filter((dest) =>
+        dest.hotelLocation?.toLowerCase().includes(selectedCountryLower)
+      );
+    }
+
     return filtered;
-  }, [destinations, selectedCategory]);
+  }, [destinations, selectedCategory, selectedCountry]);
 
   const handleExplore = (slug) => {
     navigate(`/product/${slug}`);
@@ -96,6 +99,37 @@ const Discover = () => {
 
       {/* Filter Section */}
       <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-gray-600 text-center mb-3">
+            Quick Country Filter
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <button
+              onClick={() => setSelectedCountry("all")}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                selectedCountry === "all"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              All Countries
+            </button>
+            {countryChips.map((country) => (
+              <button
+                key={country}
+                onClick={() => setSelectedCountry(country)}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                  selectedCountry === country
+                    ? "bg-indigo-600 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                {country}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex flex-wrap gap-4 justify-center mb-8">
           <button
             onClick={() => setSelectedCategory("all")}
@@ -184,7 +218,7 @@ const Discover = () => {
         {filteredDestinations.length === 0 && (
           <div className="text-center py-16">
             <p className="text-2xl text-gray-500">
-              No destinations found in this category.
+              No destinations found for the selected filters.
             </p>
           </div>
         )}

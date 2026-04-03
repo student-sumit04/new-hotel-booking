@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 const Banner = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useSearch();
+  const quickCountries = ["India", "Australia", "New Zealand", "Japan", "China"];
 
   const handelSerach = async (e) => {
     e.preventDefault();
@@ -27,6 +28,19 @@ const Banner = () => {
       navigate("/search");
     } catch (error) {
       console.error("Error during search API call:", error);
+    }
+  };
+
+  const handleQuickCountrySearch = async (country) => {
+    try {
+      const url = `${import.meta.env.VITE_BASE_URL}/api/booking/search/${encodeURIComponent(
+        country
+      )}`;
+      const { data } = await axios.get(url);
+      setSearch({ ...search, keyword: country, results: data });
+      navigate("/search");
+    } catch (error) {
+      console.error("Error during quick country search:", error);
     }
   };
 
@@ -63,6 +77,18 @@ const Banner = () => {
           >
             Search
           </button>
+        </div>
+
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          {quickCountries.map((country) => (
+            <button
+              key={country}
+              onClick={() => handleQuickCountrySearch(country)}
+              className="px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 border border-white/40 text-sm font-medium transition"
+            >
+              {country}
+            </button>
+          ))}
         </div>
       </div>
     </div>
