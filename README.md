@@ -4,7 +4,7 @@ A full-stack MERN hotel booking application with Stripe payment integration.
 
 ## 🚀 Features
 
-- ✅ Browse 10+ luxury Indian hotels
+- ✅ Browse curated hotels across multiple categories
 - ✅ Advanced search and category filtering (Luxury, Business, Boutique, Resort, Budget)
 - ✅ User authentication (Register/Login with JWT)
 - ✅ Hotel booking with date and guest selection
@@ -12,6 +12,7 @@ A full-stack MERN hotel booking application with Stripe payment integration.
 - ✅ Responsive design with Tailwind CSS
 - ✅ Image uploads with Cloudinary
 - ✅ Order history and booking management
+- ✅ Contact form saved to database (admin view)
 
 ## 🛠️ Tech Stack
 
@@ -47,6 +48,7 @@ new-hotel-booking/
 └── server/                # Backend Node.js API
     ├── src/
     │   ├── controller/    # Route controllers
+    │   ├── data/          # Seed data
     │   ├── models/        # Mongoose models
     │   ├── routes/        # API routes
     │   ├── middlewares/   # Auth & other middlewares
@@ -102,6 +104,8 @@ CLOUDINARY_API_SECRET=your_cloudinary_secret
 STRIPE_SECRET_KEY=your_stripe_secret_key
 ```
 
+You can also copy and fill [server/.env.example](server/.env.example).
+
 ### 4. Seed the Database
 ```bash
 cd server
@@ -124,6 +128,20 @@ npm run dev
 
 Visit: http://localhost:5173
 
+## 📜 Scripts
+
+**Server:**
+- `npm run dev` - Start with nodemon
+- `npm start` - Start with node
+- `npm run sync:db` - Run DB sync utility
+- `npm run fix:user-index` - Run user index fix utility
+
+**Client:**
+- `npm run dev` - Start Vite dev server
+- `npm run build` - Production build
+- `npm run preview` - Preview production build
+- `npm run lint` - Lint
+
 ## 🧪 Testing Payments
 
 Use Stripe test cards:
@@ -134,26 +152,42 @@ Use Stripe test cards:
 
 ## 📦 Deployment
 
-
-
 **Quick Deploy:**
 - Frontend: Vercel / Netlify
 - Backend: Render / Railway
 - Database: MongoDB Atlas
 
-## 🏨 Sample Hotels
+### Frontend on Vercel
+1. In Vercel, import the repository and set the root directory to `client`.
+2. Build command: `npm run build`
+3. Output directory: `dist`
+4. Add environment variable:
+    - `VITE_BASE_URL=<your-render-backend-url>`
+    - `VITE_STRIPE_PUBLISHABLE_KEY=<your-stripe-publishable-key>`
+5. Deploy.
 
-The application comes with 10 pre-seeded Indian hotels:
-1. The Grand Taj Palace Mumbai
-2. Oberoi Udaipur Palace
-3. The Leela Beach Resort Goa
-4. ITC Maurya New Delhi
-5. Wildflower Hall Shimla Resort
-6. Taj View Hotel Agra
-7. Kumarakom Lake Resort Kerala
-8. The Park Boutique Hotel Bangalore
-9. Rambagh Palace Hotel Jaipur
-10. Budget Inn Heritage Kolkata
+### Backend on Render
+1. Create a new Web Service from the same repository.
+2. Set the root directory to `server`.
+3. Build command: `npm install`
+4. Start command: `npm start`
+5. Add environment variables in Render:
+    - `MONGODB_URI=<your-atlas-connection-string>`
+    - `JWT_SECRET=<your-secret>`
+    - `CLOUDINARY_CLOUD_NAME=<your-cloudinary-name>`
+    - `CLOUDINARY_API_KEY=<your-cloudinary-key>`
+    - `CLOUDINARY_API_SECRET=<your-cloudinary-secret>`
+    - `STRIPE_SECRET_KEY=<your-stripe-secret>`
+6. Deploy and copy the Render service URL into `client/.env` locally or Vercel’s environment settings as `VITE_BASE_URL`.
+
+### Important
+- Keep `client` pointing to the Render API URL, not `localhost`.
+- If you change the backend URL later, update `VITE_BASE_URL` in Vercel.
+- If bookings or auth fail after deployment, verify the Render environment variables first.
+
+## 🏨 Seed Data
+
+The application ships with seeded hotels across categories (Luxury, Business, Boutique, Resort, Budget).
 
 ## 🔐 Security
 
@@ -180,14 +214,13 @@ The application comes with 10 pre-seeded Indian hotels:
 - `POST /api/booking/create-booking` - Create booking (Protected)
 - `PATCH /api/booking/update-availability` - Update hotel availability (Protected)
 
+### Contact
+- `POST /api/contact/submit` - Save a contact message
+- `GET /api/contact/messages` - List contact messages (Admin)
+
 ## 📄 License
 
 MIT
-
-## 👤 Author
-
-**Sumit**
-- GitHub: [@student-sumit04](https://github.com/student-sumit04)
 
 ## 🤝 Contributing
 
