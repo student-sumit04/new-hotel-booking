@@ -1,5 +1,5 @@
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
 import fileUpload from "express-fileupload";
@@ -10,8 +10,7 @@ import authRoutes from "./src/routes/User.js";
 import postRoutes from "./src/routes/Post.js";
 import categoryRoutes from "./src/routes/Category.js";
 import bookingRoutes from "./src/routes/Booking.js";
-
-dotenv.config();
+import contactRoutes from "./src/routes/Contact.js";
 
 // connect to database
 connectToDb();
@@ -36,6 +35,7 @@ app.use("/auth/api", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/booking", bookingRoutes);
+app.use("/api/contact", contactRoutes);
 
 const PORT = process.env.PORT || 3000;
 
