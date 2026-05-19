@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   FaHiking,
   FaSwimmer,
@@ -16,6 +18,7 @@ import {
 
 const Activities = () => {
   const [selectedActivity, setSelectedActivity] = useState(null);
+  const navigate = useNavigate();
 
   const activities = [
     {
@@ -292,7 +295,18 @@ const Activities = () => {
               </ul>
             </div>
 
-            <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+            <button
+              onClick={() => {
+                toast.info("Share your details and we will arrange this activity.");
+                navigate("/contact", {
+                  state: {
+                    subject: `Activity Booking: ${selectedActivity.name}`,
+                  },
+                });
+                setSelectedActivity(null);
+              }}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            >
               Book This Activity
             </button>
           </div>

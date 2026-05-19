@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   FaPhone,
   FaEnvelope,
@@ -13,11 +14,12 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const Contact = () => {
+  const location = useLocation();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    subject: "",
+    subject: location.state?.subject || "",
     message: "",
   });
   const [loading, setLoading] = useState(false);
@@ -41,9 +43,11 @@ const Contact = () => {
     setLoading(true);
     
     try {
-      // Simulate API call - Replace with actual API endpoint when backend is ready
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await axios.post(`${import.meta.env.VITE_BASE_URL}/api/contact/submit`, {
+        ...formData,
+        source: "contact-form",
+      });
+
       toast.success("Message sent successfully! We'll get back to you soon.");
       
       // Reset form
@@ -55,8 +59,10 @@ const Contact = () => {
         message: "",
       });
     } catch (error) {
-      toast.error("Failed to send message. Please try again.");
-      console.error("Error:", error);
+      const serverMessage =
+        error?.response?.data?.message || error?.response?.data?.error;
+      toast.error(serverMessage || "Failed to send message. Please try again.");
+      console.error("Error:", error?.response || error);
     } finally {
       setLoading(false);
     }
@@ -71,7 +77,7 @@ const Contact = () => {
     {
       icon: <FaEnvelope className="text-3xl text-blue-600" />,
       title: "Email",
-      details: ["support@mydreamplace.com", "info@mydreamplace.com"],
+      details: ["kumsummit0@gmail.com"],
     },
     {
       icon: <FaMapMarkerAlt className="text-3xl text-blue-600" />,

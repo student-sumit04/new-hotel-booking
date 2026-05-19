@@ -16,6 +16,7 @@ import UserRoutes from "./components/Routes/Private";
 import CreateCategory from "./pages/Admin/CreateCategory";
 import AllPost from "./pages/Admin/AllPost";
 import AllTrip from "./pages/Admin/AllTrip";
+import ContactMessages from "./pages/Admin/ContactMessages";
 import UpdatePost from "./pages/Admin/UpdatePost";
 import CartPage from "./pages/CartPage";
 import Payment from "./pages/Payment";
@@ -61,6 +62,7 @@ function App() {
           <Route path="/admin/all-post" element={<AllPost />} />
           <Route path="/admin/details" element={<Details />} />
           <Route path="/admin/all-booking" element={<AllTrip />} />
+          <Route path="/admin/contact-messages" element={<ContactMessages />} />
           <Route path="/admin/post/:slug" element={<UpdatePost />} />
         </Route>
       </Routes>

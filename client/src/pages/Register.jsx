@@ -43,9 +43,11 @@ const Register = () => {
       toast.success("Registration successful");
       navigate("/login");
     } catch (err) {
-      setError("Registration failed. Please try again.");
-      toast.error("Registration failed. Please try again");
-      console.error(err);
+      const serverMessage =
+        err?.response?.data?.error || err?.response?.data?.message || err.message;
+      setError(serverMessage || "Registration failed. Please try again.");
+      toast.error(serverMessage || "Registration failed. Please try again");
+      console.error("Registration error:", err?.response || err);
     }
   };
 

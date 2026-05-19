@@ -14,7 +14,7 @@ const Payment = () => {
   const [book, setBook] = useBook();
   // console.log(book);
 
-  const [auth] = useAuth();
+  const [auth, setAuth] = useAuth();
   // console.log(auth);
   console.log("This is token", auth?.token);
   console.log("This is user Id", auth?.user?.id);
@@ -47,8 +47,19 @@ const Payment = () => {
   const handleCountryCodeConversion = (country) => {
     const countryMapping = {
       India: "IN",
+      Australia: "AU",
+      "New Zealand": "NZ",
+      Japan: "JP",
+      China: "CN",
+      USA: "US",
+      "United States": "US",
+      UK: "GB",
+      "United Kingdom": "GB",
+      Canada: "CA",
     };
-    return countryMapping[country] || country;
+    if (!country) return "";
+    if (country.length === 2) return country.toUpperCase();
+    return countryMapping[country.trim()] || "";
   };
 
   const handlePayment = async (e) => {
@@ -73,6 +84,16 @@ const Payment = () => {
       customerAddress.country
     );
 
+    if (!convertedCountry) {
+      toast.error("Please enter a valid country (2-letter code or known country)");
+      return;
+    }
+
+    if (!location?.state?.postId || amount <= 0) {
+      toast.error("Missing booking details. Please go back and try again.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -80,7 +101,7 @@ const Payment = () => {
       const { data } = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/booking/create-payment-intent`,
         {
-          amount: amount * 100, // Amount in cents
+          amount: Math.round(amount * 100), // Amount in cents
           currency: "usd",
           description: `Payment for ${title}`,
           customerName,
@@ -161,8 +182,20 @@ const Payment = () => {
         navigate("/user/your-order");
       }
     } catch (error) {
-      console.error("Error processing payment:", error.message);
-      toast.error("Payment failed. Please try again.");
+      const status = error?.response?.status;
+      const serverMessage =
+        error?.response?.data?.message || error?.response?.data?.error;
+      console.error("Error processing payment:", error?.response || error);
+
+      if (status === 401 && serverMessage?.toLowerCase().includes("log in")) {
+        localStorage.removeItem("auth");
+        setAuth({ user: null, token: "" });
+        toast.error("Session expired. Please log in again.");
+        navigate("/login", { state: "/payment" });
+        return;
+      }
+
+      toast.error(serverMessage || "Payment failed. Please try again.");
     } finally {
       setLoading(false);
     }

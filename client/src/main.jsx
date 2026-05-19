@@ -13,9 +13,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { BookingProvider } from "./context/Booking.jsx";
 
 // Load your Stripe public key
-const stripePromise = loadStripe(
-  "pk_test_51NmvjYSJMmMS2PKYPTmToXg9wC1zicQF8uOorOJ0BcYOioztEhncFCsEE3NfcBEjr7XqJhzCldWd0RfK0tUHZ3mW00ISvW0iwa"
-);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
