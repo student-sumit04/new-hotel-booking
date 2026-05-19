@@ -36,9 +36,10 @@ export const searchBookings = async (req, res) => {
   }
 };
 
-const stripe = new Stripe(
-  "sk_test_51NmvjYSJMmMS2PKYOt73HhhQ8a7gIiqlnrz4ZirSQWRtZi8HmoydPtDEO6D4Q2WPQScbgZWbDBP24hvXzfaMPDAN00H63tvSXI"
-);
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  console.error("STRIPE_SECRET_KEY is not set in environment");
+}
 export const createPaymentIntent = async (req, res) => {
   try {
     const { amount, currency, description, customerName, customerAddress } =
@@ -58,8 +59,30 @@ export const createPaymentIntent = async (req, res) => {
       });
     }
 
+    if (!stripeSecretKey) {
+      return res.status(500).json({
+        success: false,
+        message: "Stripe secret key is not configured",
+      });
+    }
+
+    if (Number(amount) <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Amount must be greater than 0",
+      });
+    }
+
+    if (!stripeSecretKey) {
+      return res.status(500).json({
+        success: false,
+        message: "Stripe secret key is not configured",
+      });
+    }
+
+    const stripe = new Stripe(stripeSecretKey);
     const paymentIntent = await stripe.paymentIntents.create({
-      amount,
+      amount: Number(amount),
       currency,
       payment_method_types: ["card"],
       description,
@@ -134,9 +157,10 @@ export const createBooking = async (req, res) => {
 
     const userExists = await User.findById(userId);
     if (!userExists) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(401).json({
+        success: false,
+        message: "User not found. Please log in again.",
+      });
     }
 
     // Validate post existence

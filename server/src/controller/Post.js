@@ -3,6 +3,7 @@ import Post from "../models/Post.js";
 import slug from "slugify";
 import Category from "../models/Category.js";
 import mongoose from "mongoose";
+import { seedCategories, seedHotels } from "../data/seedHotels.js";
 
 export const createPostController = async (req, res) => {
   try {
@@ -284,6 +285,96 @@ export const popularPostController = async (req, res) => {
       success: false,
       message: "Error while fetching popular posts",
       error,
+    });
+  }
+};
+
+export const seedHotelsController = async (req, res) => {
+  try {
+    if (process.env.NODE_ENV === "production") {
+      return res.status(403).send({
+        success: false,
+        message: "Seeding is disabled in production",
+      });
+    }
+
+    const force = String(req.query.force || "").toLowerCase() === "true";
+    const existingCount = await Post.countDocuments({});
+
+    if (existingCount > 0 && !force) {
+      return res.status(200).send({
+        success: true,
+        message: "Hotels already exist. Use ?force=true to re-seed.",
+        total: existingCount,
+      });
+    }
+
+    if (force) {
+      await Post.deleteMany({});
+    }
+
+    const existingCategories = await Category.find({});
+    const categoryByName = new Map(
+      existingCategories.map((cat) => [cat.name, cat])
+    );
+
+    const missingCategories = seedCategories.filter(
+      (cat) => !categoryByName.has(cat.name)
+    );
+
+    if (missingCategories.length > 0) {
+      const created = await Category.insertMany(missingCategories);
+      created.forEach((cat) => categoryByName.set(cat.name, cat));
+    }
+
+    let created = 0;
+    let skipped = 0;
+
+    for (const hotel of seedHotels) {
+      const exists = await Post.findOne({ title: hotel.title });
+      if (exists) {
+        skipped += 1;
+        continue;
+      }
+
+      const categoryDoc = categoryByName.get(hotel.categoryName);
+      if (!categoryDoc) {
+        skipped += 1;
+        continue;
+      }
+
+      await Post.create({
+        title: hotel.title,
+        hotelLocation: hotel.hotelLocation,
+        description: hotel.description,
+        category: categoryDoc._id,
+        images: hotel.images,
+        slug: slug(hotel.title, { lower: true, strict: true }),
+        isAvailable: hotel.isAvailable,
+        guest: hotel.guest,
+        price: hotel.price,
+        nearArea: hotel.nearArea,
+        facilities: hotel.facilities,
+      });
+
+      created += 1;
+    }
+
+    const total = await Post.countDocuments({});
+
+    res.status(200).send({
+      success: true,
+      message: "Seeding completed",
+      created,
+      skipped,
+      total,
+    });
+  } catch (error) {
+    console.error("Error seeding hotels:", error);
+    res.status(500).send({
+      success: false,
+      message: "Error seeding hotels",
+      error: error.message,
     });
   }
 };

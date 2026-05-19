@@ -7,6 +7,7 @@ import {
   popularPostController,
   postFiltersController,
   relatedPostController,
+  seedHotelsController,
   updatePostController,
 } from "../controller/Post.js";
 
@@ -19,5 +20,6 @@ app.delete("/delete-post/:pid", deletePostController);
 app.get("/related-post/:pid/:cid", relatedPostController);
 app.post("/product-filters", postFiltersController);
 app.get("/popular-post", popularPostController)
+app.post("/seed-hotels", seedHotelsController);
 
 export default app;
